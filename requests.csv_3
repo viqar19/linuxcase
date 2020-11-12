@@ -1,0 +1,9 @@
+Requestnumber,UserID,Age_date,Homedirectory,Label,Groups,Password,OS,hostname,Action,SecondaryGroups,Subaction
+RITM123456,test_user2,,,744/I/0086h9/IBM/testusesr1,grp1,12345678,Linux,localhost,creation,wsadmin|db2admin,
+RITM123456,test_user3,,/home/testuserwithhomedir,744/I/0086h9/IBM/testusesr1,grp1,12345678,Linux,localhost,creation,,
+RITM123456,test_user_nosecgrp,,,744/I/0086h9/IBM/testusesr1,grp1,12345678,Linux,desktop,creation,wsadmin|db2admin,
+RITM123456,test_wronggrp,,,744/I/0086h9/IBM/testusesr1,grp11,12345678,Linux,10.10.10.10,creation,wsadmin|db2admin,
+RITM123456,test_wrongsecgrp,,,744/I/0086h9/IBM/testusesr1,grp1,12345678,Linux,localhost,creation,wsadmin|b2admin,
+RITM123456,test_user7,,/home/testuserwithhomedir2,744/I/0086h9/IBM/testusesr1,grp1,12345678,Linux,localhost,creation,wsadmin|db2admin,
+RITM123456,test_user8,2020-09-04 21:54:00,,744/I/0086h9/IBM/testusesr1,grp1,12345678,Linux,localhost,creation,,
+

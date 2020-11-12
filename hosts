@@ -1,0 +1,8 @@
+[linux]
+localhost
+10.10.10.10
+[linux:vars]
+ansible_user=harshdeep
+ansible_password=kalra0782
+ansible_sudo_pass=kalra0782
+

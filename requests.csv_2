@@ -1,0 +1,2 @@
+Requestnumber,UserID,Age_date,Homedirectory,Label,Groups,Password,OS,hostname,Action,SecondaryGroups
+RITM123456, test_user1,, /home/testeduser,tested for user,grp1, testuser1password,Linux, localhost, Creation, wsadmin|db2admin 

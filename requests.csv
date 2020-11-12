@@ -1,0 +1,2 @@
+Requestnumber,UserID,Age_date,Homedirectory,Label,Groups,Password,OS,hostname,Action,SecondaryGroups,Subaction
+RITM123456,test_user5,2020-09-10,,744/I/0086h9/IBM/testusesr1,,,Linux,localhost,deleteuser,db2admin|wsadmin,

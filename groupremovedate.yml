@@ -1,0 +1,89 @@
+---
+- name: user management play1 on localhost
+  hosts: localhost
+  connection: local
+
+  vars:
+    valid_hostnames_p1: ""
+
+  tasks:
+  - name: read CSV file
+    include_role:
+     name: user_management_role
+     tasks_from: read_csv.yml
+    vars:
+      csv_file_name: "requests.csv"
+      csv_fields: "Requestnumber,UserID,Age_date,Homedirectory,Label,Groups,Password,OS,hostname,Action,Secondarygroup,Subaction"
+
+  - debug:
+       msg: "data from csv file in role file = {{ csvresults }} "
+
+  - name: create hostname variable
+    include_role:
+      name: user_management_role
+      tasks_from: valid_hostnames.yml
+    vars:
+      var_actionfrommainfile: "groupremovaldate"      
+      #var_actionfrommainfile: "groupmodification"
+
+
+  - debug:
+      msg: "valid hostnames = {{ valid_hostnames_p1 }}"
+
+  - name: Fail when no group modification tasks or no valid hostnames
+    fail:
+       msg: " No group modification tasks in csv file"
+    when: valid_hostnames_p1|length == 0
+
+- name: user management play2 on hosts read from CSV file
+  hosts: "{{ hostvars['localhost']['valid_hostnames_p1'] }}"
+  become: true
+  become_method: sudo
+
+  vars:
+    positive_list: []
+    negative_list: []
+    group_not_exist: []
+    created_but_error_list: []
+    only_passwordchange_list: []
+    pass_invalid_list: []
+    passwordchanged_list: []
+    var_output_txt: ""
+
+  tasks:
+   - name: Get csvresults from previous play
+     set_fact:
+        csvresults_full: "{{ hostvars['localhost']['csvresults'] }}"
+   - debug: 
+        msg: "{{ lookup('pipe','date +%Y-%m-%d') }}"
+   - name: Filter csvresults with action and hostname
+     set_fact:
+        csvresultsinterim: "{{ csvresults_full|selectattr('Action','match','(?i)^[#]*groupremovaldate')|selectattr('hostname','equalto',inventory_hostname)|list }}"
+        datetofilter: "{{ lookup('pipe','date +%Y-%m-%d') }}"
+   - debug:
+       msg: "csv list in second play after filtering based hostname and Action-------------- {{ csvresultsinterim }}"
+   - name: Filter csvresults with age date
+     set_fact:
+             csvresults: "{{ csvresults_full|selectattr('Age_date','match',datetofilter)|list }}"    
+   - debug:
+         msg: "csv list in second play after filtering based -age date------------- {{ csvresults }}"
+
+
+   - name: Call Usergroup removal
+     include_role:
+            name: user_management_role
+            tasks_from: usergroupremoval.yml
+     vars:
+       list_item: "{{ item }}"
+     with_items: "{{ csvresults|selectattr('Action','match','(?i)^[# \t]*groupremovaldate')|list }}"
+     when: ansible_os_family in ['RedHat','Suse','Debian']
+
+
+   - name: Create output file based on list
+     include_role:
+      name: user_management_role
+      tasks_from: create_outputfile.yml
+     vars:
+       outputfilename: "group_output_{{ inventory_hostname }}_{{ timestamp }}.csv"
+   - debug:
+              msg: "===User who started it: {{ tower_user_name|default('no user') }}=====For Hostname {{ inventory_hostname }}=========\n {{ var_output_txt }}"       

@@ -1,0 +1,7 @@
+Requestnumber,UserID,Age_date,Homedirectory,Label,Groups,Password,OS,hostname,Action,SecondaryGroups
+RITM123456,test_user1,,/home/testeduser,,,testuser1password,Linux,localhost,Creation,db2admin|wsadmin
+RITM123333,test_user441,2020-08-22,,744/I/0086h9/IBM/testusesr441,,testuser441password,Linux,localhost,Creation,
+RITM123456,test_user1,,,744/I/0086h9/IBM/testusesr1,grp1,12345678,Linux,localhost,Passwordreset,
+RITM123333,test_user441,2020-08-22,,744/I/0086h9/IBM/testusesr441,grp1,87654321,Linux,localhost,Passwordreset,
+RITM123456,test_user1,,,744/I/0086h9/IBM/testusesr1,grp1,12345678,Linux,localhost,Deleteuser,
+RITM123333,test_user441,2020-08-22,,744/I/0086h9/IBM/testusesr441,grp1,87654321,Linux,localhost,Deleteuser,
