@@ -1,0 +1,10 @@
+---
+  - debug:
+       msg: " Inside the test role tasks list item recieved ===================== {{ list_item }} "
+  - name: check if user alread exists or not
+    shell: "id {{ list_item.UserID }}"
+    register: user_output
+    ignore_errors: true
+
+  - debug:
+        msg: "user output ===================== {{ user_output }} "

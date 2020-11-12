@@ -1,0 +1,11 @@
+---
+# tasks file for test_role
+- import_tasks: read_csv.yml
+- import_tasks: user_create_without_home_dir.yml
+- import_tasks: user_create_with_home_dir.yml
+- import_tasks: user_delete.yml
+- import_tasks: group_add.yml
+- import_tasks: group_remove.yml
+- import_tasks: password_change.yml
+- import_tasks: age_restriction.yml
+- import_tasks: create_outputfile.yml

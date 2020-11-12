@@ -1,0 +1,38 @@
+---
+  - name: check if user alread exists or not
+    shell: "cat /etc/passwd|grep -w {{ list_item.UserID }}|wc -l"
+    register: user_output
+    ignore_errors: true
+
+  - debug:
+          msg: "user output ===================== {{ user_output }} "
+  - set_fact:
+       var_uid_exists: "{{ (user_output.stdout == '1')|ternary(true,false) }}"
+
+  - set_fact:
+      validation_result: true
+
+
+  - name: Delete existing user
+    user:
+      name: "{{ list_item.UserID }}"
+      state: absent
+    register: delete_result
+    when:
+      - var_uid_exists
+
+  - set_fact:
+       positive_list: "{{ positive_list | default([]) | union([list_item]) }}"
+       var_output_txt: "{{ var_output_txt+ list_item.values()|join(',') +', '+ 'User Deleted successfully' +'\n' }}"
+    when:
+       - var_uid_exists
+
+  - set_fact:
+           negative_list: "{{ negative_list | default([]) | union([list_item]) }}"
+           var_output_txt: "{{ var_output_txt+ list_item.values()|join(',') +', '+ 'Userid Does not exist: Deletion failed' + '\n' }}"
+    when:
+        - var_uid_exists == false
+
+  - debug:
+      msg: "================Delete result ==== {{ delete_result }} positive list = {{ positive_list }} ===== negative list = {{ negative_list }}"
+

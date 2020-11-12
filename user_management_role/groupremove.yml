@@ -1,0 +1,27 @@
+---
+  - name: Split secondary groups in list
+    set_fact:
+           secondarygrouplist: "{{ list_item.Secondarygroup.split('|') }}"
+    when:
+      -   list_item.Secondarygroup|length > 0
+  - name: Remove group
+    group:
+      name: "{{ item }}"
+      state: absent
+    loop: "{{ secondarygrouplist }}"
+    register: groupremoval_result
+    ignore_errors: true
+
+  - debug:
+      msg: "================GroupRemoval result ==== {{ groupremoval_result }} "
+  - set_fact:
+       groupremoval_list: "{{ groupremoval_list | default([]) | union([list_item]) }}"
+       var_output_txt: "{{ var_output_txt+ list_item.values()|join(',') +', '+ 'Group removal successful' + '\n' }}"
+    when:
+       - groupremoval_result.changed is defined     
+       - groupremoval_result.changed   
+         
+  - set_fact:
+          var_output_txt: "{{ var_output_txt+ list_item.values()|join(',') +','+ 'Grp removal failed grps defined.Msg:'+ groupremoval_result.msg + 'Error:'+groupremoval_result.stderr|default('') +'\n' }}" 
+    when:     
+        - groupremoval_result.msg is defined and groupremoval_result.msg !='' or (groupremoval_result.changed is defined and groupremoval_result.changed == false)

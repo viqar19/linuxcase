@@ -1,0 +1,34 @@
+---
+
+  - name: Split secondary groups in list
+    set_fact:
+         secondarygrouplist: "{{ list_item.Secondarygroup.split('|') }}"
+    when:
+      -   list_item.Secondarygroup|length > 0
+  - name: Add a group
+    group:
+      name: "{{ item }}"
+      state: present
+    ignore_errors: true  
+    register: groupaddition_result
+    loop: "{{ secondarygrouplist|default([]) }}"
+
+  - debug:
+      msg: "================Groupaddition result ==== {{ groupaddition_result }} "
+  - set_fact:
+       groupaddition_list: "{{ groupaddition_list | default([]) | union([list_item]) }}"
+       var_output_txt: "{{ var_output_txt+ list_item.values()|join(',') +', '+ 'group added' + '\n' }}"
+    when:
+       - secondarygrouplist|default([])|length >0     
+       - groupaddition_result.changed
+
+  - set_fact:
+       grouplistnotadded_list: "{{ grouplistnotadded_list | default([]) | union([list_item]) }}"
+       var_output_txt: "{{ var_output_txt+ list_item.values()|join(',') +', '+ 'group addition failed Error:' +  groupaddition_result.stderr|default('') +'Output:'+ groupaddition_result.stdout|default('')   + '\n' }}"
+    when:
+       - secondarygrouplist|default([])|length >0            
+       - groupaddition_result.changed == false
+  - set_fact:
+         var_output_txt: "{{ var_output_txt+ list_item.values()|join(',') +', '+ 'group addition failed no secondary groups defined \n' }}"
+    when:
+       - secondarygrouplist|default([])|length == 0 

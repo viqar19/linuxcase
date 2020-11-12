@@ -1,0 +1,9 @@
+---
+  - name: create variable for file writing
+    set_fact:
+      var_output_txt: "{{ var_output_txt+ item.values()|join(',') +', '+ var_msg +'\n' }}"
+    loop: "{{ var_listtoprint }}"
+    when: var_listtoprint is defined
+  - debug:
+      msg: " var_output_result:  {{ var_output_txt }} "
+

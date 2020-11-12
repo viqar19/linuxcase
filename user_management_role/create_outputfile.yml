@@ -1,0 +1,10 @@
+---
+
+  - name: Create file using COPY module
+    copy:
+      content: |
+              {{ var_output_txt }}
+      dest: "{{ outputfilename }}"
+    delegate_to: localhost
+
+

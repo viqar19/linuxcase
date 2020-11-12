@@ -1,0 +1,54 @@
+---
+  - debug:
+       msg: "list item recieved ===================== {{ list_item }} "
+
+  - name: check if user alread exists or not
+    shell: "groups {{ list_item.UserID }}|cut -d ':' -f 2"
+    register: user_output
+    ignore_errors: true
+
+  - debug:
+       msg: "user output ===================== {{ user_output }} "
+  - set_fact:
+          currentgrouplist: "{{ (user_output.stdout|trim).split(' ') }}"
+    when:
+       user_output.stdout !=''
+  - debug:
+            msg: "split {{  currentgrouplist }} "
+  - name: Split secondary groups in list
+    set_fact:
+         secondarygrouplist: "{{ list_item.Secondarygroup.split('|') }}"
+    when:
+            -   list_item.Secondarygroup|length > 0
+  - debug:
+      msg: "left over groups: {{ currentgrouplist| difference(secondarygrouplist)|default('') }}"
+  - name: add user with/without homedirectory
+    user:
+        name: "{{ list_item.UserID }}"
+        groups: "{{ currentgrouplist| difference(secondarygrouplist)|default('') }}"
+        state: present
+    register: user_add_result
+    ignore_errors: true
+    when:
+        - user_output.stdout != ''
+
+  - set_fact:
+       positive_list: "{{ positive_list | default([]) | union([list_item]) }}"
+       var_output_txt: "{{ var_output_txt+ list_item.values()|join(',') +', '+ 'user removed from the Groups Successfully' + '\n' }}"       
+    when:
+       - user_add_result is defined and user_add_result.changed == True
+
+  - set_fact:
+       group_not_exist: "{{ group_not_exist | default([]) | union([list_item]) }}"
+       var_output_txt: "{{ var_output_txt+ list_item.values()|join(',') +', '+ 'Group doesnt exist' + '\n' }}"       
+    when:
+       - user_add_result.msg is defined and user_add_result.msg.find("Group does not exist") != 1
+
+  - set_fact:
+         created_but_error_list: "{{ created_but_error_list | default([]) | union([list_item]) }}"
+         var_output_txt: "{{ var_output_txt+ list_item.values()|join(',') +', '+ 'User already removed from group or error occured' + '\n' }}"
+    when:
+         - user_add_result.stderr is defined and user_add_result.changed == True
+
+  - debug:
+       msg: "error list :{{ created_but_error_list|default([]) }}"
